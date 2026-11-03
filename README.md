@@ -309,21 +309,25 @@ Final-Year-Major-Project/
 
 ## 🚀 Quickstart & Installation Guide
 
-### Prerequisites
-- **Operating System:** Windows 10 / 11, macOS, or Linux.
-- **Python Version:** **Python 3.10 (64-bit)** is strongly recommended for seamless compatibility with precompiled `dlib` and `pyaudio` wheels on Windows.
-- **Hardware:** Standard webcam and working microphone.
+### Prerequisites & System Setup
+
+1. **Install Python 3.10 (64-bit):**
+   - 📥 **Direct Download Link:** [Python 3.10.11 for Windows (64-bit Official Installer)](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe)
+   - ⚠️ **CRITICAL INSTALLER STEP:** During installation, make sure to check the box at the bottom that says **`"Add Python 3.10 to PATH"`** before clicking *Install Now*!
+   - *(Why Python 3.10? It guarantees pre-compiled binary `.whl` packages for `pyaudio` and `dlib` without needing Visual Studio C++ build tools).*
+2. **Hardware:** Standard webcam and built-in or external microphone.
+3. **Operating System:** Windows 10 / 11 (also supports macOS & Linux).
 
 ---
 
 ### ⚡ One-Click Automated Launch (Recommended)
-You do not need to manually configure environments or execute multiple commands. Simply run the automated launcher for your operating system:
+You do not need to manually configure environments or run complex pip commands:
 
-- 🪟 **Windows (1-Click):** Double-click **`run.bat`** in File Explorer (or run `.\run.bat` in Command Prompt).
+- 🪟 **Windows (1-Click):** In the project folder, simply **double-click `run.bat`** (or run `.\run.bat` in Command Prompt).
 - 💻 **Windows (PowerShell):** Run `.\run.ps1`
 - 🍎 **Linux / macOS:** Run `chmod +x run.sh && ./run.sh`
 
-*The launcher will automatically verify Python, create the `venv` virtual environment, install dependencies, spin up the server, and open `http://localhost:5000` in your default browser.*
+*The automated launcher will verify Python 3.10, create the `venv` virtual environment, install all pre-built dependencies from `requirements.txt`, start the AI proctoring server, and automatically pop up **`http://localhost:5000`** in your default web browser.*
 
 ---
 
