@@ -13,6 +13,7 @@ var ans;
 var choiceArray = [], divArray = [];
 var examSubmitted = false;
 var isProcessingAnswer = false;
+var transitionTimeout = null;
 
 // Create buttons for choices
 for (var i = 0; i < 4; i++) {
@@ -45,6 +46,7 @@ function startTimer() {
 
         if (secondsLeft <= 0 || questionIndex >= totalQuestions) {
             clearInterval(timeInterval);
+            if (transitionTimeout) clearTimeout(transitionTimeout);
             if (resultDiv) resultDiv.style.display = "none";
             if (quizContent) quizContent.style.display = "none";
             if (timer) timer.textContent = "Time's up!";
@@ -57,6 +59,10 @@ function startTimer() {
 }
 
 function buildQuestion() {
+    if (examSubmitted || secondsLeft <= 0) {
+        viewResult();
+        return;
+    }
     isProcessingAnswer = false;
     if (questionEl) questionEl.style.display = "none";
     if (mainContent) mainContent.style.display = "none";
@@ -127,19 +133,21 @@ if (quizContent) {
             }
         }
 
-        setTimeout(function () {
+        transitionTimeout = setTimeout(function () {
             if (resultDiv) {
                 resultDiv.style.display = "none";
             }
+            if (examSubmitted || secondsLeft <= 0) return;
             questionIndex++;
             buildQuestion();
-        }, 350);
+        }, 600);
     });
 }
 
 function submitExam() {
     if (examSubmitted) return;
     examSubmitted = true;
+    if (transitionTimeout) clearTimeout(transitionTimeout);
 
     var submitBtn = document.querySelector("#submitTestBtn");
     if (submitBtn) {

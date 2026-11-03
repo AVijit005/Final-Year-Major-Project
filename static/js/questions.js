@@ -1,78 +1,78 @@
 // Questions as an array of Objects
 var questions = [
     {
-      title: 'What is computer vision?   ',
-      choices: ['Image processing', 'Teaching computers to see', 'Data storage', 'Speech recognition'],
-      answer: 'Teaching computers to see'
+      title: 'What is computer vision?',
+      choices: ['Teaching computers to interpret and understand visual data', 'Image printing and document storage', 'Audio speech synthesis', 'Database indexing and querying'],
+      answer: 'Teaching computers to interpret and understand visual data'
     },
     {
-      title: 'Which of these is NOT a common computer vision application?',
-      choices: ['Object recognition', 'Image compression', 'Face detection', 'Autonomous driving'],
-      answer: 'Image compression'
+      title: 'Which of these is NOT a primary application of computer vision?',
+      choices: ['Object recognition', 'Autonomous vehicle navigation', 'Facial recognition', 'Lossless text compression'],
+      answer: 'Lossless text compression'
     },
     {
       title: 'What does OCR stand for in computer vision?',
-      choices: ['Optical Character Recognition', 'Object Classification Resolution', 'Online Computer Revision', 'Object Categorization Retrieval'],
+      choices: ['Object Classification Resolution', 'Optical Character Recognition', 'Online Computer Revision', 'Object Categorization Retrieval'],
       answer: 'Optical Character Recognition'
     },
     {
-      title: 'Which type of neural network is widely used in computer vision?',
-      choices: ['ANN', 'CNN', ' RNN', 'GAN'],
-      answer: 'CNN'
+      title: 'Which type of neural network is primarily used for computer vision tasks?',
+      choices: ['Recurrent Neural Network (RNN)', 'Long Short-Term Memory (LSTM)', 'Multilayer Perceptron (MLP)', 'Convolutional Neural Network (CNN)'],
+      answer: 'Convolutional Neural Network (CNN)'
     },
     {
-      title: 'What is the purpose of image segmentation in computer vision?',
-      choices: ['Enhancing image colors', 'Detecting objects', 'Reducing image size', 'Adding noise to images'],
-      answer: 'Detecting objects'
+      title: 'What is the primary purpose of image segmentation in computer vision?',
+      choices: ['Enhancing image color saturation', 'Partitioning an image into multiple meaningful segments or regions', 'Reducing image file dimensions on disk', 'Injecting synthetic Gaussian noise'],
+      answer: 'Partitioning an image into multiple meaningful segments or regions'
     },
     {
-      title: 'Which is a common method for image feature extraction?',
-      choices: ['Image blurring', 'Histogram equalization', 'Image cropping', 'Image mirroring'],
-      answer: 'Histogram equalization'
+      title: 'Which of the following is a classical method for image feature extraction?',
+      choices: ['HOG (Histogram of Oriented Gradients)', 'Image blurring', 'Image cropping', 'Image mirroring'],
+      answer: 'HOG (Histogram of Oriented Gradients)'
     },
     {
       title: 'What is supervised learning in computer vision?',
-      choices: ['Machines learn without guidance', 'Learning from labeled data', 'Learning from scratch', 'Learning without data'],
-      answer: 'Learning from labeled data'
+      choices: ['Training models using labeled datasets with ground truth annotations', 'Learning without any training data or supervision', 'Generating synthetic images without human guidance', 'Clustering unlabelled pixels randomly'],
+      answer: 'Training models using labeled datasets with ground truth annotations'
     },
     {
-      title: 'What is used to create panoramic photos in computer vision?',
-      choices: ['Image rotation', 'Image resizing', 'Image stitching', 'Image mirroring'],
+      title: 'Which technique is used to combine multiple overlapping images into a single panorama?',
+      choices: ['Image rotation', 'Image resizing', 'Image stitching', 'Image downsampling'],
       answer: 'Image stitching'
     },
     {
-      title: ' What is the term for reducing image data while keeping important info?',
-      choices: ['Image expansion', 'Image augmentation', 'Image compression', 'Image transformation'],
+      title: 'What is the term for reducing image data size while preserving perceptual visual quality?',
+      choices: ['Image augmentation', 'Image transformation', 'Image dilation', 'Image compression'],
       answer: 'Image compression'
     },
     {
-      title: ' What does CNN stand for in computer vision?',
-      choices: ['Complex Neural Network', 'Convolutional Neural Network', ' Centralized Neural Network', 'Computerized Numerical Network'],
+      title: 'What does CNN stand for in computer vision and deep learning?',
+      choices: ['Complex Neural Network', 'Convolutional Neural Network', 'Centralized Numerical Node', 'Computerized Neural Notation'],
       answer: 'Convolutional Neural Network'
     },
     {
-      title: 'What is the primary objective of image segmentation in computer vision?',
-      choices: ['To remove color information from images', 'To classify images into categories', 'To locate objects within an image and separate them from the background', 'To increase image resolution'],
-      answer: 'To locate objects within an image and separate them from the background'
+      title: 'What is the goal of object localization in an image?',
+      choices: ['Removing background color channels', 'Predicting the bounding box coordinates of an object in the scene', 'Converting an RGB image to grayscale', 'Increasing overall pixel resolution'],
+      answer: 'Predicting the bounding box coordinates of an object in the scene'
     },
     {
-      title: 'Which of the following is NOT a common image format used in computer vision?',
-      choices: ['JPEG', 'MP3', ' PNG', 'TIFF'],
+      title: 'Which of the following file formats is NOT an image format?',
+      choices: ['JPEG', 'PNG', 'TIFF', 'MP3'],
       answer: 'MP3'
     },
     {
-      title: 'What is the main purpose of a Convolutional Neural Network (CNN) in computer vision?',
-      choices: ['Text recognition', 'Image classification and feature extraction', 'Speech synthesis', 'Predicting stock prices'],
-      answer: 'Image classification and feature extraction'
+      title: 'What is the main function of convolutional layers in a CNN?',
+      choices: ['Extracting local spatial features using learnable filters', 'Managing session state across HTTP requests', 'Synthesizing text-to-speech audio', 'Generating random cryptographic keys'],
+      answer: 'Extracting local spatial features using learnable filters'
     },
     {
-      title: 'What is the term for the process of converting an image into a grid of small regions for analysis in computer vision?',
-      choices: ['Segmentation', 'Classification', 'Normalization', 'Filtering'],
-      answer: 'Segmentation'
+      title: 'Which technique assigns a class label to every individual pixel in an image?',
+      choices: ['Semantic Segmentation', 'Feature Slicing', 'Color Normalization', 'Image Dithering'],
+      answer: 'Semantic Segmentation'
     },
     {
-      title: ' Which algorithm is commonly used for edge detection in images?',
-      choices: ['K-Means clustering', 'Gaussian blur', 'Canny edge detector', 'Histogram equalization'],
+      title: 'Which algorithm is widely used for multi-stage edge detection in OpenCV?',
+      choices: ['K-Means clustering', 'Gaussian mixture model', 'Canny edge detector', 'Bilinear interpolation'],
       answer: 'Canny edge detector'
     }
-  ];
+];

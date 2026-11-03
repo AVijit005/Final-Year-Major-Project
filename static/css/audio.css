@@ -25,12 +25,7 @@ nav {
   margin-left: 30px;
   color: black; /* Text color for the title */
 }
-.sec1 {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background: #e3f2fd;
-}
+.sec1 { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: transparent; pointer-events: none; z-index: 3000; display: flex; justify-content: center; align-items: center; }
 button {
   font-size: 18px;
   font-weight: 400;
@@ -52,18 +47,8 @@ button.show-modal,
 section.active .show-modal {
   display: none;
 }
-.overlay1 {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  pointer-events: none;
-}
-.sec1.active .overlay1 {
-  opacity: 1;
-  pointer-events: auto;
-}
+.overlay1 { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 3001; }
+.sec1.active .overlay1 { opacity: 1; pointer-events: auto; }
 .modal-box {
   display: flex;
   flex-direction: column;
@@ -117,3 +102,5 @@ audio{
   box-shadow: 5px 5px 5px #918d8d;
   padding: 10px;
 }
+
+.sec1.active { pointer-events: auto; }

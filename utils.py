@@ -417,10 +417,10 @@ def EDD_record_duration(text, img):
     if text == "Electronic Device Detected" and prev_state[4] == "No Electronic Device Detected":
         start_time[4] = time.time()
         writer[4].write(img)
-    elif text == "Electronic Device Detected" and str(text) == prev_state[4] and (time.time() - start_time[4]) > 0:
+    elif text == "Electronic Device Detected" and str(text) == prev_state[4] and (time.time() - start_time[4]) > 2.0:
         flag[4] = True
         writer[4].write(img)
-    elif text == "Electronic Device Detected" and str(text) == prev_state[4] and (time.time() - start_time[4]) <= 0:
+    elif text == "Electronic Device Detected" and str(text) == prev_state[4] and (time.time() - start_time[4]) <= 2.0:
         flag[4] = False
         writer[4].write(img)
     else:
@@ -729,7 +729,7 @@ def headMovmentDetection(image, face_mesh):
                 textHead = "Looking Left"
             elif y_deg > 15:
                 textHead = "Looking Right"
-            elif x_deg < -12:
+            elif x_deg < -18:
                 textHead = "Looking Down"
             elif x_deg > 15:
                 textHead = "Looking Up"

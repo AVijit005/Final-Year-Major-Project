@@ -1,8 +1,9 @@
 @echo off
+cd /d "%~dp0"
 chcp 65001 > nul
 title AI-Based Anti-Spoofing Online Exam Proctoring System
 echo =====================================================================
-echo   🎓 AI-Based Anti-Spoofing Online Exam Proctoring System
+echo   [AI Proctoring] Online Exam Proctoring System
 echo   Developer: Avijit Pal (@AVijit005)
 echo =====================================================================
 echo.
@@ -55,10 +56,19 @@ echo [*] Step 3/3: Launching AI Proctoring Server...
 echo.
 echo ---------------------------------------------------------------------
 echo   Server running at: http://localhost:5000
-echo   Default Student:   student@test.com  /  123456
-echo   Default Admin:     admin@test.com    /  admin123
+echo   Default Student:   student@test.com   /  123456
+echo   Demo Student 2:    student2@test.com  /  123456
+echo   Default Admin:     admin@test.com     /  admin123
 echo ---------------------------------------------------------------------
 echo.
+
+:: Port 5000 check
+netstat -ano | findstr /R /C:":5000 " >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [WARNING] Port 5000 is already in use by another process!
+    echo If a previous instance is running, please close it.
+    echo.
+)
 
 :: Launch browser after 2 seconds
 start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:5000"

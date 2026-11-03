@@ -51,12 +51,7 @@
             font-weight: bolder;
         }
 
-        section {
-            position: fixed;
-            height: 100%;
-            width: 100%;
-            background: #e2e2e2;
-        }
+        section { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: #e2e2e2; display: flex; justify-content: center; align-items: center; }
 
         button {
             font-size: 18px;
@@ -80,27 +75,9 @@
             bottom: 0;
         }
 
-        .modal-box {
-            width: 380px;
-            flex: 0 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            transform: scale(0.8); /* Start with a smaller scale */
-            text-align: center;
-            overflow: hidden;
-            margin: 10px; /* Add margin to prevent overlap */
-        }
+        .modal-box { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.9); z-index: 10; width: 380px; max-width: 90vw; padding: 24px; background-color: #fff; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); opacity: 0; pointer-events: none; transition: all 0.3s ease; text-align: center; overflow: hidden; margin: 0; }
 
-        .modal-box.show {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
+        .modal-box.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
 
         .modal-box i {
             font-size: 70px;
@@ -164,3 +141,4 @@
             font-weight: bold;
             padding: 5px;
         }
+.overlay { position: fixed; top: 0; left: 0; height: 100%; width: 100%; background: rgba(0, 0, 0, 0.25); z-index: 1; }

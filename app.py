@@ -57,19 +57,31 @@ def init_db():
         if cursor.fetchone()[0] == 0:
             seed_data = [
                 ('Admin', 'admin@test.com', 'admin123', 'ADMIN', 'not given'),
-                ('Student', 'student@test.com', '123456', 'STUDENT', 'not given')
+                ('Student', 'student@test.com', '123456', 'STUDENT', 'not given'),
+                ('Demo Student', 'student2@test.com', '123456', 'STUDENT', 'not given')
             ]
             cursor.executemany(
                 "INSERT INTO students (name, email, password, role, exam_status) VALUES (?, ?, ?, ?, ?)",
                 seed_data
             )
+        else:
+            cursor.execute("SELECT id FROM students WHERE email='student2@test.com'")
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO students (name, email, password, role, exam_status) VALUES (?, ?, ?, ?, ?)",
+                    ('Demo Student', 'student2@test.com', '123456', 'STUDENT', 'not given')
+                )
         conn.commit()
 
 init_db()
 
 # Module-level Haar Cascade detector to avoid re-reading XML every frame
 HAAR_PATH = os.path.join(BASE_DIR, 'Haarcascades', 'haarcascade_frontalface_default.xml')
-face_detector = cv2.CascadeClassifier(HAAR_PATH) if (hasattr(cv2, 'CascadeClassifier') and os.path.exists(HAAR_PATH)) else None
+face_detector = None
+if hasattr(cv2, 'CascadeClassifier') and os.path.exists(HAAR_PATH):
+    detector = cv2.CascadeClassifier(HAAR_PATH)
+    if hasattr(detector, 'empty') and not detector.empty():
+        face_detector = detector
 
 def admin_required():
     user = session.get('studentInfo')
@@ -121,7 +133,7 @@ def login():
             return redirect(url_for('main'))
         else:
             std_id, name, email, pwd, role, exam_status = data
-            student_info = {"Id": std_id, "Name": name, "Email": email, "Password": pwd, "Role": role}
+            student_info = {"Id": std_id, "Name": name, "Email": email, "Role": role}
             session['studentInfo'] = student_info
             utils.Student_Name = name
 
@@ -303,7 +315,7 @@ def examAction():
             except ValueError:
                 correct_count = 0.0
 
-            totalMark = math.floor(correct_count * 6.6667)
+            totalMark = int(round((correct_count / 15.0) * 100))
 
             if trustScore >= 30:
                 status = "Fail(Cheating)"
@@ -461,4 +473,4 @@ def updateStudent():
     return redirect(url_for('adminStudents'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

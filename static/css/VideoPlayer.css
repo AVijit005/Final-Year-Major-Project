@@ -239,12 +239,7 @@ body, .container, .video-controls, .video-timer, .options{
   }
 }
   /* Additional CSS for the link button */
-    .link-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 2;
-    }
+    .link-button { position: static !important; display: flex; justify-content: center; margin-top: 25px; margin-bottom: 25px; width: 100%; z-index: 2; }
 
     /* Style the link button as needed */
     .link-button a {
