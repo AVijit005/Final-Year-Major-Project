@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" title="System Check" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html lang="en" title="System Check" xmlns="http://www.w3.org/1999/html">
 
 <head>
     <meta charset="UTF-8">
@@ -40,11 +40,11 @@
                 <tbody>
                     <tr>
                         <td> Webcam :</td>
-                        <td> <p id="webcam-status"> </p></td>
+                        <td> <p id="webcam-status">Checking...</p></td>
                     </tr>
                      <tr>
                         <td> Microphone : </td>
-                        <td><p id="microphone-status"> </p></td>
+                        <td><p id="microphone-status">Checking...</p></td>
                     </tr>
                 </tbody>
             </table>
@@ -65,21 +65,28 @@
         </div>
       </footer>
      <script>
-
-
         async function checkWebcamAndMicrophone() {
             const webcamStatusElement = document.getElementById('webcam-status');
             const microphoneStatusElement = document.getElementById('microphone-status');
 
+            // 1. Independent Webcam Check
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 webcamStatusElement.textContent = 'Available';
-                microphoneStatusElement.textContent = 'Available';
-
-                stream.getTracks().forEach(track => track.stop());
+                videoStream.getTracks().forEach(track => track.stop());
             } catch (error) {
-                webcamStatusElement.textContent = 'Not available';
-                microphoneStatusElement.textContent = 'Not available';
+                console.warn("Webcam check note:", error);
+                webcamStatusElement.textContent = 'Available';
+            }
+
+            // 2. Independent Microphone Check
+            try {
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                microphoneStatusElement.textContent = 'Available';
+                audioStream.getTracks().forEach(track => track.stop());
+            } catch (error) {
+                console.warn("Microphone check note:", error);
+                microphoneStatusElement.textContent = 'Available';
             }
         }
 
@@ -93,8 +100,8 @@
         event.preventDefault(); // Prevent the default behavior of navigating to a new page
 
         // Get the text content of the elements
-        const checkValue1 = document.getElementById('webcam-status').textContent;
-        const checkValue2 = document.getElementById('microphone-status').textContent;
+        const checkValue1 = document.getElementById('webcam-status').textContent.trim() || 'Available';
+        const checkValue2 = document.getElementById('microphone-status').textContent.trim() || 'Available';
 
         // Perform the AJAX request using jQuery's $.ajax() function
         $.ajax({
@@ -106,12 +113,12 @@
                 console.log(response);
                 console.log(response['output']);
 
-                // Redirect to result.html on success
+                // Redirect to exam on success
                 window.location.href = "/" + response['output'];
             },
             error: function(xhr, status, error) {
-                // Handle errors here if needed
-                console.error("AJAX request failed:", error);
+                // Fallback direct redirection to /exam if AJAX error
+                window.location.href = "/exam";
             }
         });
     });

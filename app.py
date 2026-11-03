@@ -67,7 +67,7 @@ init_db()
 
 # Module-level Haar Cascade detector to avoid re-reading XML every frame
 HAAR_PATH = os.path.join(BASE_DIR, 'Haarcascades', 'haarcascade_frontalface_default.xml')
-face_detector = cv2.CascadeClassifier(HAAR_PATH) if os.path.exists(HAAR_PATH) else None
+face_detector = cv2.CascadeClassifier(HAAR_PATH) if (hasattr(cv2, 'CascadeClassifier') and os.path.exists(HAAR_PATH)) else None
 
 def admin_required():
     user = session.get('studentInfo')
@@ -166,6 +166,11 @@ def saveFaceInput():
     with utils.camera_lock:
         if utils.cap is not None and utils.cap.isOpened():
             success, frame = utils.cap.read()
+            try:
+                utils.cap.release()
+            except Exception:
+                pass
+            utils.cap = None
         else:
             cam = utils.open_camera()
             success, frame = cam.read()
@@ -188,6 +193,14 @@ def saveFaceInput():
 def confirmFaceInput():
     if 'studentInfo' not in session:
         return redirect(url_for('main'))
+
+    with utils.camera_lock:
+        if utils.cap is not None:
+            try:
+                utils.cap.release()
+            except Exception:
+                pass
+            utils.cap = None
 
     profile = session.get('profileName', '')
     utils.fr.encode_faces()
@@ -228,7 +241,9 @@ def exam():
         return redirect(url_for('main'))
 
     if not utils.Globalflag:
+        utils.init_exam_session()
         utils.Globalflag = True
+        utils.Student_Name = student.get('Name', 'Student')
         if utils.cap is None or not utils.cap.isOpened():
             utils.cap = utils.open_camera()
 
@@ -255,10 +270,16 @@ def examAction():
         user_input = str(examData.get('input', ''))
 
         if user_input != '':
+            # 1. Flush any active violations in progress so no evidence or penalty is missed
+            utils.flush_all_active_violations()
+
             utils.Globalflag = False
             utils.stop_keyboard_hook()
-            if utils.cap is not None and utils.cap.isOpened():
-                utils.cap.release()
+            time.sleep(0.3)
+            with utils.camera_lock:
+                if utils.cap is not None and utils.cap.isOpened():
+                    utils.cap.release()
+                    utils.cap = None
             utils.release_all_writers()
             utils.deleteTrashVideos()
 

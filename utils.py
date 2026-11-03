@@ -468,6 +468,156 @@ def deleteTrashVideos():
             except Exception:
                 pass
 
+def init_exam_session():
+    """
+    Initializes a completely fresh set of video writers, random filenames,
+    and state trackers before every new exam attempt.
+    """
+    global writer, video, flag, prev_state, start_time, end_time, shorcuts, fourcc_default
+    
+    release_all_writers()
+    shorcuts.clear()
+    
+    video = [(str(random.randint(1, 50000)) + ".mp4") for _ in range(5)]
+    fourcc_default = cv2.VideoWriter_fourcc(*'mp4v')
+    writer = [
+        cv2.VideoWriter(video[0], fourcc_default, 20, (width, height)),
+        cv2.VideoWriter(video[1], fourcc_default, 20, (width, height)),
+        cv2.VideoWriter(video[2], fourcc_default, 20, (width, height)),
+        cv2.VideoWriter(video[3], fourcc_default, 15, (1920, 1080)),
+        cv2.VideoWriter(video[4], fourcc_default, 20, (EDWidth, EDHeight))
+    ]
+    
+    prev_state = [
+        "Verified Student appeared",
+        "Forward",
+        "Only one person is detected",
+        "Stay in the Test",
+        "No Electronic Device Detected"
+    ]
+    flag = [False, False, False, False, False]
+    now = time.time()
+    start_time = [now, now, now, now, now]
+    end_time = [now, now, now, now, now]
+
+def flush_all_active_violations():
+    """
+    Flushes and finalizes any ongoing violations at the moment of exam submission
+    so no active violation evidence is lost or discarded.
+    """
+    global start_time, end_time, prev_state, flag, writer, video
+    now = time.time()
+
+    # 0: Face Detection
+    try:
+        if prev_state[0] != "Verified Student appeared":
+            if writer[0] is not None:
+                writer[0].release()
+            duration = max(1, math.ceil(now - start_time[0]))
+            outputVideo = 'FDViolation' + video[0]
+            violation = {
+                "Name": prev_state[0],
+                "Time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time[0])),
+                "Duration": f"{duration} seconds",
+                "Mark": math.floor(2 * duration),
+                "Link": outputVideo,
+                "RId": get_resultId()
+            }
+            write_json(violation)
+            reduceBitRate(video[0], outputVideo)
+            move_file_to_output_folder(outputVideo)
+            prev_state[0] = "Verified Student appeared"
+    except Exception as e:
+        print(f"Notice flushing face violation: {e}")
+
+    # 1: Head Pose
+    try:
+        if prev_state[1] != "Forward":
+            if writer[1] is not None:
+                writer[1].release()
+            duration = max(1, math.ceil(now - start_time[1]))
+            outputVideo = 'HeadViolation' + video[1]
+            violation = {
+                "Name": prev_state[1],
+                "Time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time[1])),
+                "Duration": f"{duration} seconds",
+                "Mark": duration,
+                "Link": outputVideo,
+                "RId": get_resultId()
+            }
+            write_json(violation)
+            reduceBitRate(video[1], outputVideo)
+            move_file_to_output_folder(outputVideo)
+            prev_state[1] = "Forward"
+    except Exception as e:
+        print(f"Notice flushing head pose violation: {e}")
+
+    # 2: Multiple Persons
+    try:
+        if prev_state[2] != "Only one person is detected":
+            if writer[2] is not None:
+                writer[2].release()
+            duration = max(1, math.ceil(now - start_time[2]))
+            outputVideo = 'MTOPViolation' + video[2]
+            violation = {
+                "Name": prev_state[2],
+                "Time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time[2])),
+                "Duration": f"{duration} seconds",
+                "Mark": math.floor(1.5 * duration),
+                "Link": outputVideo,
+                "RId": get_resultId()
+            }
+            write_json(violation)
+            reduceBitRate(video[2], outputVideo)
+            move_file_to_output_folder(outputVideo)
+            prev_state[2] = "Only one person is detected"
+    except Exception as e:
+        print(f"Notice flushing MTOP violation: {e}")
+
+    # 3: Screen Detection
+    try:
+        if prev_state[3] != "Stay in the Test":
+            if writer[3] is not None:
+                writer[3].release()
+            duration = max(1, math.ceil(now - start_time[3]))
+            outputVideo = 'SDViolation' + video[3]
+            violation = {
+                "Name": prev_state[3],
+                "Time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time[3])),
+                "Duration": f"{duration} seconds",
+                "Mark": (2 * duration),
+                "Link": outputVideo,
+                "RId": get_resultId()
+            }
+            write_json(violation)
+            reduceBitRate(video[3], outputVideo)
+            move_file_to_output_folder(outputVideo)
+            prev_state[3] = "Stay in the Test"
+    except Exception as e:
+        print(f"Notice flushing screen violation: {e}")
+
+    # 4: Electronic Device
+    try:
+        if prev_state[4] == "Electronic Device Detected":
+            if writer[4] is not None:
+                writer[4].release()
+            duration = max(1, math.ceil(now - start_time[4]))
+            outputVideo = 'EDViolation' + video[4]
+            violation = {
+                "Name": prev_state[4],
+                "Time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time[4])),
+                "Duration": f"{duration} seconds",
+                "Mark": math.floor(1.5 * duration),
+                "Link": outputVideo,
+                "RId": get_resultId()
+            }
+            write_json(violation)
+            reduceBitRate(video[4], outputVideo)
+            move_file_to_output_folder(outputVideo)
+            prev_state[4] = "No Electronic Device Detected"
+    except Exception as e:
+        print(f"Notice flushing device violation: {e}")
+
 # Biometrics
 def face_confidence(face_distance, face_match_threshold=0.6):
     linear_val = (1.0 - face_distance) / ((1.0 - face_match_threshold) * 2.0)
@@ -760,6 +910,13 @@ class Recorder:
         except Exception as e:
             print("Error in audio recording loop:", e)
         finally:
+            if len(sound) > 0 and begin_time is not None:
+                try:
+                    duration = max(1, math.floor((datetime.datetime.now() - begin_time).total_seconds()))
+                    self.write(sound, begin_time, duration)
+                    sound.clear()
+                except Exception as ex:
+                    print("Error flushing active audio buffer:", ex)
             self.close()
 
     def inSound(self, data):
