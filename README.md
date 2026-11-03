@@ -262,6 +262,9 @@ The Administrative Control Center (`/adminStudents`, `/adminResults`, `/adminRes
 
 ```plaintext
 Final-Year-Major-Project/
+├── run.bat                     # 1-Click Automated Launcher for Windows
+├── run.ps1                     # 1-Click Automated Launcher for PowerShell
+├── run.sh                      # 1-Click Automated Launcher for Linux/macOS
 ├── app.py                      # Flask Application Controller & Route Handlers
 ├── utils.py                    # Core Computer Vision, MediaPipe, YOLO & Audio Engine
 ├── requirements.txt            # Python Dependencies
@@ -313,7 +316,20 @@ Final-Year-Major-Project/
 
 ---
 
-### Step 1: Clone the Repository
+### ⚡ One-Click Automated Launch (Recommended)
+You do not need to manually configure environments or execute multiple commands. Simply run the automated launcher for your operating system:
+
+- 🪟 **Windows (1-Click):** Double-click **`run.bat`** in File Explorer (or run `.\run.bat` in Command Prompt).
+- 💻 **Windows (PowerShell):** Run `.\run.ps1`
+- 🍎 **Linux / macOS:** Run `chmod +x run.sh && ./run.sh`
+
+*The launcher will automatically verify Python, create the `venv` virtual environment, install dependencies, spin up the server, and open `http://localhost:5000` in your default browser.*
+
+---
+
+### 🛠️ Manual Installation (Alternative)
+
+#### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/AVijit005/Final-Year-Major-Project.git
 cd Final-Year-Major-Project
