@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -e
+cd "$(dirname "$0")"
 
 echo "====================================================================="
-echo "  🎓 AI-Based Anti-Spoofing Online Exam Proctoring System"
+echo "  [AI Proctoring] Online Exam Proctoring System"
 echo "  Developer: Avijit Pal (@AVijit005)"
 echo "====================================================================="
 echo ""

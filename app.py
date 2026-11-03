@@ -284,12 +284,13 @@ def examAction():
         user_input = str(examData.get('input', ''))
 
         if user_input != '':
-            # 1. Flush any active violations in progress so no evidence or penalty is missed
-            utils.flush_all_active_violations()
-
+            # 1. Stop background loops and hooks so threads yield before resource teardown
             utils.Globalflag = False
             utils.stop_keyboard_hook()
-            time.sleep(0.3)
+            time.sleep(0.2)
+
+            # 2. Flush any final active violations in progress without concurrency race
+            utils.flush_all_active_violations()
             with utils.camera_lock:
                 if utils.cap is not None and utils.cap.isOpened():
                     utils.cap.release()
@@ -388,8 +389,14 @@ def adminResultDetailsVideo(videoInfo):
 
     if filename.endswith('.wav'):
         mediaPath = '/static/OutputAudios/' + filename
+        target_path = os.path.join(app.static_folder, 'OutputAudios', filename)
     else:
         mediaPath = '/static/OutputVideos/' + filename
+        target_path = os.path.join(app.static_folder, 'OutputVideos', filename)
+
+    if not os.path.exists(target_path):
+        flash(f'Evidence file {filename} is not found on disk.', 'error')
+        return redirect(url_for('adminResultDetails', resultId=resultId))
 
     return render_template(
         'ResultDetailsVideo.html',

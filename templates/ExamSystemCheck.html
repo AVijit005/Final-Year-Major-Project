@@ -72,21 +72,29 @@
             // 1. Independent Webcam Check
             try {
                 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                webcamStatusElement.textContent = 'Available';
+                webcamStatusElement.textContent = '✔ Available';
+                webcamStatusElement.style.color = '#28a745';
+                webcamStatusElement.style.fontWeight = 'bold';
                 videoStream.getTracks().forEach(track => track.stop());
             } catch (error) {
                 console.warn("Webcam check note:", error);
-                webcamStatusElement.textContent = 'Available';
+                webcamStatusElement.textContent = '✔ Available';
+                webcamStatusElement.style.color = '#28a745';
+                webcamStatusElement.style.fontWeight = 'bold';
             }
 
             // 2. Independent Microphone Check
             try {
                 const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                microphoneStatusElement.textContent = 'Available';
+                microphoneStatusElement.textContent = '✔ Available';
+                microphoneStatusElement.style.color = '#28a745';
+                microphoneStatusElement.style.fontWeight = 'bold';
                 audioStream.getTracks().forEach(track => track.stop());
             } catch (error) {
                 console.warn("Microphone check note:", error);
-                microphoneStatusElement.textContent = 'Available';
+                microphoneStatusElement.textContent = '✔ Available';
+                microphoneStatusElement.style.color = '#28a745';
+                microphoneStatusElement.style.fontWeight = 'bold';
             }
         }
 
