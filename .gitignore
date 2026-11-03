@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+env/
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# Proctoring Captured Media
+*.mp4
+*.wav
+static/OutputVideos/*.mp4
+!static/OutputVideos/.gitkeep
+static/OutputAudios/*.wav
+!static/OutputAudios/.gitkeep
+static/Profiles/*.jpg
+static/Profiles/*.jpeg
+static/Profiles/*.png
+!static/Profiles/.gitkeep
+
+# Temporary files
+*.tmp
+.DS_Store
+Thumbs.db

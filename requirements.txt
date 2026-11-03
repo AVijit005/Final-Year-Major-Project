@@ -1,0 +1,12 @@
+flask
+opencv-python
+mediapipe
+ultralytics
+pyautogui
+pygetwindow
+keyboard
+python-dotenv
+numpy
+# Audio & Biometrics (Best installed on Python 3.10)
+pyaudio
+face-recognition

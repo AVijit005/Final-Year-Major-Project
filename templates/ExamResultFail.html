@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Result</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/Sorry.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo">
+        <span class="text">The Online Exam Proctor</span>
+    </div>
+    <div class="links">
+        <a class="links" href="{{ url_for('main') }}">Home</a>
+        <a class="links" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<section>
+    {% set result = result_status.split(';') %}
+    <span class="overlay"></span>
+    <div class="modal-box show">
+        {% if result|length > 2 and 'cheating' in result[2].lower() %}
+        <img src="{{ url_for('static', filename='img/tiger.png') }}" alt="Icon" width="70" height="70" />
+        <h2>Exam Violated (Cheating Detected)</h2>
+        {% else %}
+        <img src="{{ url_for('static', filename='img/bear.png') }}" alt="Icon" width="70" height="70" />
+        <h2>Exam Result: Did Not Pass</h2>
+        {% endif %}
+        <ul>
+            <li>Name: {{ result[0] if result|length > 0 else 'Student' }}</li>
+            <li>Test Score: {{ result[1] if result|length > 1 else '0' }}%</li>
+            <li>Exam Status: {{ result[2] if result|length > 2 else 'Fail' }}</li>
+            <li>Date: {{ result[3] if result|length > 3 else '' }}</li>
+        </ul>
+        <div class="buttons">
+            <button class="close-btn" style="padding: 8px 20px; background: #e74c3c; color: #fff; border: none; border-radius: 20px; cursor: pointer;">Ok, Close</button>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container8">
+        <div>
+            <p class="box-footer1">&copy; The Online Exam Proctor System</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    window.onload = () => {
+        const modal = document.querySelector(".modal-box");
+        const overlay = document.querySelector(".overlay");
+        const closeBtn = document.querySelector(".close-btn");
+
+        const hideModal = () => {
+            if (modal) modal.style.display = "none";
+            if (overlay) overlay.style.display = "none";
+        };
+
+        if (overlay) overlay.addEventListener("click", hideModal);
+        if (closeBtn) closeBtn.addEventListener("click", hideModal);
+    };
+</script>
+</body>
+</html>

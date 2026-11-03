@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<!-- My CSS -->
+	<link rel="stylesheet" href="{{url_for('static', filename='css/StRecord.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/audio.css')}}">
+
+	<title>Admin Dashboard</title>
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Admin Dashboard</span>
+		</a>
+		<ul class="side-menu top">
+			<li>
+				<a href="{{url_for('adminStudents')}}">
+					<i class='bx bxs-group' ></i>
+					<span class="text">Students</span>
+				</a>
+			</li>
+			<li class="active">
+				<a href="{{url_for('adminResults')}}">
+					<i class='bx bxs-graduation' ></i>
+					<span class="text">Exam Results</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{url_for('logout')}}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<span class="text">The Online Exam Proctor</span>
+			<div>
+				<a href="#">
+					<i class='bx bxs-user' ></i>
+					<span class="text">Profile</span>
+				</a>
+			</div>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Dashboard</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="#">Dashboard</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Result Details</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="table-data">
+				<div class="order">
+					<div class="head">
+						<ul class="breadcrumb">
+							<li>
+								<a href="{{url_for('adminResults')}}">Result</a>
+							</li>
+							<li><i class='bx bx-chevron-right' ></i></li>
+							<li>
+								<a class="active" href="#">{{ resultDetials['Result'][0]['Name'] if resultDetials['Result'] else 'Student' }}</a>
+							</li>
+						</ul>
+					</div>
+					{% if resultDetials['Result'] %}
+					<div class="container">
+						{% if resultDetials['Result'][0]['Link'] %}
+						<img src="{{ url_for('static', filename='Profiles/' + resultDetials['Result'][0]['Link']) }}" alt="" style="width: 100px;">
+						{% endif %}
+						<p>{{ resultDetials['Result'][0]['Name'] }}</p>
+					</div>
+					<div class="status">
+						<ul class="features">
+							<li><span>Exam Status : </span> {{ resultDetials['Result'][0]['Status'] }}</li>
+							<li><span>Trust Score :</span> {{ resultDetials['Result'][0]['TrustScore'] }}%</li>
+							<li><span>Total Score : </span>{{ resultDetials['Result'][0]['TotalMark'] }}% </li>
+						</ul>
+					</div>
+					{% endif %}
+
+					<h4 style="margin-top: 30px;">Violation Records</h4>
+					<table>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Time</th>
+								<th>Duration</th>
+								<th>Media Evidence</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% if resultDetials['Violation']|length %}
+							{% for violation in resultDetials['Violation'] %}
+							<tr>
+								<td>{{ violation['Name'] }}</td>
+								<td>{{ violation['Time'] }}</td>
+								<td>{{ violation['Duration'] }}</td>
+								<td>
+									{% if violation['Link'] and violation['Link'].endswith('.mp4') %}
+										{% set VideoInfo = violation['Link'] ~ ';' ~ (resultDetials['Result'][0]['Id'] if resultDetials['Result'] else '0') %}
+										<a class="btn btn-sm btn-primary text-white" href="{{ url_for('adminResultDetailsVideo', videoInfo=VideoInfo) }}">Watch Video</a>
+									{% elif violation['Link'] and violation['Link'].endswith('.wav') %}
+										<a class="btn btn-sm btn-info text-white" href="javascript:void(0)" onclick="playAudio('{{ violation['Link'] }}')">Listen Audio</a>
+									{% else %}
+										<span class="text-muted">No media</span>
+									{% endif %}
+								</td>
+							</tr>
+							{% endfor %}
+						{% else %}
+							<tr>
+								<td colspan="4">
+									<p class="text-center">No violation record is found.</p>
+								</td>
+							</tr>
+						{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+
+	<section class="sec1">
+		<span class="overlay1"></span>
+		<div class="modal-box">
+			<img src="{{ url_for('static', filename='img/mic-unmute.png') }}" alt="Icon" width="70" height="70" />
+			<h2>Violation Audio Record</h2>
+			<br>
+			<audio controls id="audio">
+				<source src="" type="audio/wav" id="audioSource">
+			</audio>
+			<div class="buttons">
+				<button class="close-btn btn btn-secondary">Close</button>
+			</div>
+		</div>
+	</section>
+
+	<script src="{{url_for('static', filename='js/TrStudent.js')}}"></script>
+	<script>
+		function playAudio(parameter) {
+			const section = document.querySelector(".sec1"),
+				overlay = document.querySelector(".overlay1"),
+				closeBtn = document.querySelector(".close-btn");
+			var audio = document.getElementById('audio');
+			var source = document.getElementById('audioSource');
+			var filepath = "{{ url_for('static', filename='OutputAudios/') }}" + parameter;
+			source.src = filepath;
+			audio.load();
+			section.classList.add("active");
+
+			overlay.addEventListener("click", () => {
+				section.classList.remove("active");
+				audio.pause();
+			});
+			closeBtn.addEventListener("click", () => {
+				section.classList.remove("active");
+				audio.pause();
+			});
+		}
+	</script>
+</body>
+</html>
