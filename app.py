@@ -23,6 +23,8 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.getenv("SECRET_KEY", "exam_proctor_secret_key_2026")
 
 DATABASE = os.getenv('DATABASE_PATH', os.path.join(BASE_DIR, 'exam_system.db'))
+if not os.path.isabs(DATABASE):
+    DATABASE = os.path.join(BASE_DIR, DATABASE)
 
 def get_db():
     db = getattr(g, '_database', None)
