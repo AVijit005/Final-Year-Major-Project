@@ -31,6 +31,24 @@
                 <input type="checkbox" id="export-file">
             </div>
         </section>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="padding: 10px 20px; margin: 10px 20px; background: #ffdddd; color: #d8000c; border: 1px solid #d8000c; border-radius: 6px; font-size: 14px; text-align: center;">
+                {% for message in messages %}
+                    <strong>Warning:</strong> {{ message }}<br>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="padding: 10px 20px; margin: 10px 20px; background: #ffdddd; color: #d8000c; border: 1px solid #d8000c; border-radius: 6px; font-size: 14px; text-align: center;">
+                {% for message in messages %}
+                    <strong>Warning:</strong> {{ message }}<br>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         <section class="table__body">
                 <div>
                    <img src="{{ url_for('video_capture') }}" width="100%" class="host-img">

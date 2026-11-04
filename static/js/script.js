@@ -14,6 +14,7 @@ var choiceArray = [], divArray = [];
 var examSubmitted = false;
 var isProcessingAnswer = false;
 var transitionTimeout = null;
+var timeInterval = null;
 
 // Create buttons for choices
 for (var i = 0; i < 4; i++) {
@@ -36,16 +37,28 @@ function startQuiz() {
     buildQuestion();
 }
 
+function formatTime(secs) {
+    var m = Math.floor(Math.max(0, secs) / 60);
+    var s = Math.max(0, secs) % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+}
+
 // Function to start timer when quiz starts
 function startTimer() {
-    var timeInterval = setInterval(function () {
+    if (timer) {
+        timer.textContent = "Time : " + formatTime(secondsLeft);
+    }
+    timeInterval = setInterval(function () {
         secondsLeft--;
         if (timer) {
-            timer.textContent = "Time : " + Math.max(0, secondsLeft) + " sec";
+            timer.textContent = "Time : " + formatTime(secondsLeft);
         }
 
         if (secondsLeft <= 0 || questionIndex >= totalQuestions) {
-            clearInterval(timeInterval);
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
             if (transitionTimeout) clearTimeout(transitionTimeout);
             if (resultDiv) resultDiv.style.display = "none";
             if (quizContent) quizContent.style.display = "none";
@@ -147,6 +160,10 @@ if (quizContent) {
 function submitExam() {
     if (examSubmitted) return;
     examSubmitted = true;
+    if (timeInterval) {
+        clearInterval(timeInterval);
+        timeInterval = null;
+    }
     if (transitionTimeout) clearTimeout(transitionTimeout);
 
     var submitBtn = document.querySelector("#submitTestBtn");
