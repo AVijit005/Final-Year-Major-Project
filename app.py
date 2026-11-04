@@ -10,7 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, flash, g
 from dotenv import load_dotenv
 import cv2
-import keyboard
+try:
+    import keyboard
+except ImportError:
+    keyboard = None
 
 import utils
 
@@ -291,7 +294,8 @@ def exam():
         threading.Thread(target=utils.a.record, daemon=True).start()
 
         try:
-            keyboard.hook(utils.shortcut_handler)
+            if keyboard is not None:
+                keyboard.hook(utils.shortcut_handler)
         except Exception as e:
             print("Keyboard hook error:", e)
 

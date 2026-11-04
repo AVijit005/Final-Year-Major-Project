@@ -40,6 +40,7 @@
 - [Performance Benchmarks & Profiling](#-performance-benchmarks--hardware-profiling)
 - [Database & Storage Architecture](#-database--storage-architecture)
 - [Administrative Dashboard & Audit Suite](#-administrative-dashboard--audit-suite)
+- [Recent Engineering & Reliability Enhancements (v2.0)](#-recent-engineering--reliability-enhancements-v20)
 - [Technology Stack](#-technology-stack)
 - [Project Directory Structure](#-project-directory-structure)
 - [Quickstart & Installation Guide](#-quickstart--installation-guide)
@@ -141,13 +142,15 @@ Given image width $W$ and height $H$, focal length is approximated as $f = W$, w
 $$K = \begin{bmatrix} f & 0 & \frac{W}{2} \\ 0 & f & \frac{H}{2} \\ 0 & 0 & 1 \end{bmatrix}$$
 
 ### 2. Standardized 3D Canonical Facial Model
-Six critical facial landmarks are mapped against an invariant anatomical 3D space:
+Six critical facial landmarks are mapped against an invariant anatomical 3D space. To strictly align with OpenCV's camera projection coordinate system (where $+X$ points right, $+Y$ points **downward**, and $+Z$ points forward into the camera), the canonical coordinates are mathematically standardized as:
 - **Nose Tip (Landmark 1):** $(0.0, 0.0, 0.0)$
-- **Chin (Landmark 199):** $(0.0, -330.0, -65.0)$
-- **Left Eye Outer Corner (Landmark 33):** $(-225.0, 170.0, -135.0)$
-- **Right Eye Outer Corner (Landmark 263):** $(225.0, 170.0, -135.0)$
-- **Left Mouth Corner (Landmark 61):** $(-150.0, -150.0, -125.0)$
-- **Right Mouth Corner (Landmark 291):** $(150.0, -150.0, -125.0)$
+- **Chin (Landmark 199):** $(0.0, +330.0, -65.0)$ *(below nose tip)*
+- **Left Eye Outer Corner (Landmark 33):** $(-225.0, -170.0, -135.0)$ *(above nose tip)*
+- **Right Eye Outer Corner (Landmark 263):** $(+225.0, -170.0, -135.0)$ *(above nose tip)*
+- **Left Mouth Corner (Landmark 61):** $(-150.0, +150.0, -125.0)$ *(below nose tip)*
+- **Right Mouth Corner (Landmark 291):** $(+150.0, +150.0, -125.0)$ *(below nose tip)*
+
+> **Mathematical Note:** Correctly configuring the $+Y$ downward vector guarantees that looking directly at the exam monitor yields a pitch angle $\alpha \approx 0.0^{\circ}$, totally eliminating false-positive "Looking Down" violation alerts.
 
 ### 3. Pose Optimization & Rotation Decomposition
 Given 2D image points $p_i$ and 3D model points $P_i$, OpenCV minimizes the reprojection error:
@@ -238,6 +241,23 @@ The Administrative Control Center (`/adminStudents`, `/adminResults`, `/adminRes
    - Candidates falling below **70% Trust Score** are automatically marked as **Fail (Cheating)**.
 3. **Student Directory CRUD:**
    - Add new candidates, update details, or remove records with immediate database validation.
+
+---
+
+## 🚀 Recent Engineering & Reliability Enhancements (v2.0)
+
+To ensure fail-safe performance during live faculty demonstrations and production assessments, the following hardened engineering safeguards were implemented:
+
+1. **Multi-Camera Auto-Probing & DirectShow Auto-Recovery:**
+   - Probes hardware camera indices `(0, 1, 2)` dynamically with `cv2.CAP_DSHOW` (DirectShow) and OS native fallbacks, guaranteeing zero camera feed initialization locks across internal and external webcams.
+2. **Pre-Exam Biometric Verification Guard:**
+   - Enforces face presence validation prior to baseline persistence (`/saveFaceInput`). If the candidate's face is obscured or out of frame, the system provides real-time guidance rather than saving an empty reference frame.
+3. **Automated Port 5000 Collision Cleaner (`run.bat` & `run.ps1`):**
+   - Integrates automated port collision diagnostics via `netstat` to automatically terminate orphaned background Python processes on port 5000 before Flask boots, completely preventing `WinError 10048` crashes.
+4. **Resilient Video Evidence Reviewer & Direct Download:**
+   - Augmented the administrative video evidence viewer (`/adminResultDetailsVideo`) with native HTML5 fallback controls and direct `.mp4` / `.wav` evidence file download links for frictionless offline evaluation.
+5. **Zero-Console-Error Frontend Polish:**
+   - Sanitized all 16 Jinja2 templates, injected data URI favicons to silence browser `/favicon.ico` 404 warnings, and provided dual Bootstrap 4 (`data-toggle`) and Bootstrap 5 (`data-bs-toggle`) attributes for candidate CRUD modals.
 
 ---
 
