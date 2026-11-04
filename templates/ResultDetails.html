@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="data:,">
+    
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="{{url_for(\'static\', filename=\'css/bootstrap.min.css\')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 	<!-- My CSS -->
 	<link rel="stylesheet" href="{{url_for('static', filename='css/StRecord.css')}}">
 	<link rel="stylesheet" href="{{url_for('static', filename='css/audio.css')}}">
@@ -157,7 +159,7 @@
 			<h2>Violation Audio Record</h2>
 			<br>
 			<audio controls id="audio">
-				<source src="" type="audio/wav" id="audioSource">
+				
 			</audio>
 			<div class="buttons">
 				<button class="close-btn btn btn-secondary">Close</button>
@@ -167,25 +169,31 @@
 
 	<script src="{{url_for('static', filename='js/TrStudent.js')}}"></script>
 	<script>
-		function playAudio(parameter) {
-			const section = document.querySelector(".sec1"),
-				overlay = document.querySelector(".overlay1"),
-				closeBtn = document.querySelector(".close-btn");
-			var audio = document.getElementById('audio');
-			var source = document.getElementById('audioSource');
-			var filepath = "{{ url_for('static', filename='OutputAudios/') }}" + parameter;
-			source.src = filepath;
-			audio.load();
-			section.classList.add("active");
+		const section = document.querySelector(".sec1"),
+			overlay = document.querySelector(".overlay1"),
+			closeBtn = document.querySelector(".close-btn"),
+			audioElem = document.getElementById('audio');
 
+		if (overlay) {
 			overlay.addEventListener("click", () => {
-				section.classList.remove("active");
-				audio.pause();
+				if (section) section.classList.remove("active");
+				if (audioElem) audioElem.pause();
 			});
+		}
+		if (closeBtn) {
 			closeBtn.addEventListener("click", () => {
-				section.classList.remove("active");
-				audio.pause();
+				if (section) section.classList.remove("active");
+				if (audioElem) audioElem.pause();
 			});
+		}
+
+		function playAudio(parameter) {
+			if (!audioElem || !section) return;
+			var filepath = "{{ url_for('static', filename='OutputAudios/') }}" + parameter;
+			audioElem.src = filepath;
+			audioElem.load();
+			section.classList.add("active");
+			audioElem.play().catch(function() {});
 		}
 	</script>
 </body>

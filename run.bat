@@ -62,12 +62,15 @@ echo   Default Admin:     admin@test.com     /  admin123
 echo ---------------------------------------------------------------------
 echo.
 
-:: Port 5000 check
+:: Port 5000 check and auto-free
 netstat -ano | findstr /R /C:":5000 " >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [WARNING] Port 5000 is already in use by another process!
-    echo If a previous instance is running, please close it.
-    echo.
+    echo [WARNING] Port 5000 is occupied by a lingering process.
+    echo [*] Freeing port 5000 to prevent crash...
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr /R /C:":5000 "') do (
+        taskkill /F /PID %%a >nul 2>&1
+    )
+    timeout /t 1 /nobreak >nul
 )
 
 :: Launch browser after 2 seconds

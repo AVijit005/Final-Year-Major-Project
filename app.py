@@ -194,6 +194,30 @@ def saveFaceInput():
         flash('Could not capture frame from webcam. Please retry.', 'error')
         return redirect(url_for('faceInput'))
 
+    # Face verification guard: ensure at least one face is present before saving
+    has_face = True
+    if utils.face_recognition is not None:
+        try:
+            rgb_f = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            small_f = cv2.resize(rgb_f, (0, 0), fx=0.5, fy=0.5)
+            locs = utils.face_recognition.face_locations(small_f)
+            if len(locs) == 0:
+                has_face = False
+        except Exception:
+            has_face = True
+    elif getattr(utils, 'faceDetection', None) is not None:
+        try:
+            rgb_f = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            res = utils.faceDetection.process(rgb_f)
+            if not res.detections or len(res.detections) == 0:
+                has_face = False
+        except Exception:
+            has_face = True
+
+    if not has_face:
+        flash('No face detected in snapshot. Please look directly into the camera and click Save Image again.', 'error')
+        return redirect(url_for('faceInput'))
+
     profile_name = f"{student['Name']}_{utils.get_resultId():03}Profile.jpg"
     out_dir = os.path.join(app.static_folder, 'Profiles')
     os.makedirs(out_dir, exist_ok=True)

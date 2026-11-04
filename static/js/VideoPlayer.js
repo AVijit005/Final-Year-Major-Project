@@ -139,7 +139,7 @@ if (container) {
             speedBtn.addEventListener("click", () => speedOptions.classList.toggle("show"));
         }
 
-        if (pipBtn) pipBtn.addEventListener("click", () => mainVideo.requestPictureInPicture());
+        if (pipBtn) pipBtn.addEventListener("click", () => mainVideo.requestPictureInPicture().catch(() => {}));
 
         if (skipBackward) skipBackward.addEventListener("click", () => mainVideo.currentTime -= 5);
         if (skipForward) skipForward.addEventListener("click", () => mainVideo.currentTime += 5);
@@ -147,7 +147,7 @@ if (container) {
         if (playPauseBtn) {
             mainVideo.addEventListener("play", () => playPauseBtn.classList.replace("fa-play", "fa-pause"));
             mainVideo.addEventListener("pause", () => playPauseBtn.classList.replace("fa-pause", "fa-play"));
-            playPauseBtn.addEventListener("click", () => mainVideo.paused ? mainVideo.play() : mainVideo.pause());
+            playPauseBtn.addEventListener("click", () => mainVideo.paused ? mainVideo.play().catch(() => {}) : mainVideo.pause());
         }
 
         if (fullScreenBtn) {
@@ -155,10 +155,10 @@ if (container) {
                 container.classList.toggle("fullscreen");
                 if (document.fullscreenElement) {
                     fullScreenBtn.classList.replace("fa-compress", "fa-expand");
-                    return document.exitFullscreen();
+                    return document.exitFullscreen().catch(() => {});
                 }
                 fullScreenBtn.classList.replace("fa-expand", "fa-compress");
-                container.requestFullscreen();
+                container.requestFullscreen().catch(() => {});
             });
         }
     }

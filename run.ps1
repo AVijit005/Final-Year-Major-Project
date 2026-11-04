@@ -56,10 +56,13 @@ Write-Host "  Demo Student 2:  student2@test.com  /  123456" -ForegroundColor Wh
 Write-Host "  Default Admin:   admin@test.com     /  admin123" -ForegroundColor White
 Write-Host "---------------------------------------------------------------------`n" -ForegroundColor Yellow
 
-# Port 5000 check
+# Port 5000 check and auto-free
 $port5000 = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue
 if ($port5000) {
-    Write-Host "[WARNING] Port 5000 is already in use! Close previous server instance if needed.`n" -ForegroundColor Yellow
+    Write-Host "[WARNING] Port 5000 is already in use by PID $($port5000.OwningProcess)." -ForegroundColor Yellow
+    Write-Host "[*] Freeing port 5000 to prevent crash..." -ForegroundColor Cyan
+    Stop-Process -Id $port5000.OwningProcess -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
 }
 
 # Auto-open browser after 2 seconds

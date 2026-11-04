@@ -1,8 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="en" title="System Check">
+<html lang="en">
 
 <head>
+    <link rel="icon" href="data:,">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -32,7 +34,7 @@
         </section>
         <section class="table__body">
                 <div>
-                    <img src="{{ url_for('static', filename='Profiles/' + profile) if profile else '#' }}" class="host-img" alt="Captured Profile Photo">
+                    <img src="{{ url_for('static', filename='Profiles/' + profile) if profile else url_for('static', filename='img/avatar.svg') }}" class="host-img" alt="Captured Profile Photo">
                 </div>
         </section>
         <section class="section-button">

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en" dir="ltr">
   <head>
+    <link rel="icon" href="data:,">
+    
     <meta charset="utf-8" />
     <title>Exam Result Details - {% if filename.endswith('.wav') %}Audio{% else %}Video{% endif %}</title>
 
@@ -85,7 +87,8 @@
         </ul>
       </div>
 
-      <video src="{{ mediaPath }}"></video>
+      <video src="{{ mediaPath }}" controls></video>
+      <div style="margin-top: 15px; text-align: center;"><a href="{{ mediaPath }}" download class="btn" style="background:#3c91e6; color:#fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;"><i class="fas fa-download"></i> Download Video Clip</a></div>
     </div>
     <script src="{{ url_for('static', filename='js/VideoPlayer.js') }}"></script>
     {% endif %}

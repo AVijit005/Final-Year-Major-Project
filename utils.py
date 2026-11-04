@@ -14,13 +14,33 @@ from concurrent.futures import ThreadPoolExecutor
 
 import cv2
 import numpy as np
-import mediapipe as mp
-import keyboard
-import pyautogui
-import pygetwindow as gw
-from ultralytics import YOLO
 
 # Optional imports with safe fallbacks
+try:
+    import mediapipe as mp
+except ImportError:
+    mp = None
+
+try:
+    import keyboard
+except ImportError:
+    keyboard = None
+
+try:
+    import pyautogui
+except ImportError:
+    pyautogui = None
+
+try:
+    import pygetwindow as gw
+except ImportError:
+    gw = None
+
+try:
+    from ultralytics import YOLO
+except ImportError:
+    YOLO = None
+
 try:
     import face_recognition
 except ImportError:
@@ -86,21 +106,31 @@ writer = [
 ]
 
 # MediaPipe Face Detection
-mpFaceDetection = mp.solutions.face_detection
-mpDraw = mp.solutions.drawing_utils
-faceDetection = mpFaceDetection.FaceDetection(
-    model_selection=1,
-    min_detection_confidence=0.35
-)
+if mp is not None:
+    try:
+        mpFaceDetection = mp.solutions.face_detection
+        mpDraw = mp.solutions.drawing_utils
+        faceDetection = mpFaceDetection.FaceDetection(
+            model_selection=1,
+            min_detection_confidence=0.35
+        )
+    except Exception:
+        mpFaceDetection = None
+        mpDraw = None
+        faceDetection = None
+else:
+    mpFaceDetection = None
+    mpDraw = None
+    faceDetection = None
 
-# Canonical 3D Head Pose Model for rigid solvePnP
+# Canonical 3D Head Pose Model for rigid solvePnP (+Y points downward to match OpenCV camera coordinates)
 CANONICAL_FACE_3D = np.array([
     [0.0, 0.0, 0.0],          # Nose tip (landmark 1)
-    [0.0, -330.0, -65.0],     # Chin (landmark 199)
-    [-225.0, 170.0, -135.0],  # Left eye outer corner (landmark 33)
-    [225.0, 170.0, -135.0],   # Right eye outer corner (landmark 263)
-    [-150.0, -150.0, -125.0], # Left mouth corner (landmark 61)
-    [150.0, -150.0, -125.0]   # Right mouth corner (landmark 291)
+    [0.0, 330.0, -65.0],      # Chin (landmark 199)
+    [-225.0, -170.0, -135.0], # Left eye outer corner (landmark 33)
+    [225.0, -170.0, -135.0],  # Right eye outer corner (landmark 263)
+    [-150.0, 150.0, -125.0],  # Left mouth corner (landmark 61)
+    [150.0, 150.0, -125.0]    # Right mouth corner (landmark 291)
 ], dtype=np.float64)
 
 # Screen & Shortcuts
@@ -153,10 +183,22 @@ cap = None
 camera_lock = threading.Lock()
 
 def open_camera():
-    c = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    if not c.isOpened():
-        c = cv2.VideoCapture(0)
-    return c
+    for idx in (0, 1, 2):
+        try:
+            c = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
+            if c.isOpened():
+                return c
+            c.release()
+        except Exception:
+            pass
+        try:
+            c = cv2.VideoCapture(idx)
+            if c.isOpened():
+                return c
+            c.release()
+        except Exception:
+            pass
+    return cv2.VideoCapture(0)
 
 # Thread-safe and atomic JSON write
 def write_json(new_data, filename='violation.json'):
@@ -665,78 +707,89 @@ class FaceRecognition:
                 continue
 
             with camera_lock:
+                if cap is None or not cap.isOpened():
+                    time.sleep(0.2)
+                    continue
                 ret, frame = cap.read()
 
             if not ret or frame is None:
                 time.sleep(0.1)
                 continue
 
-            text = "Verified Student disappeared"
-            if len(self.known_face_encodings) > 0:
-                small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-                rgb_small_frame = np.ascontiguousarray(small_frame[:, :, ::-1])
-                self.face_locations = face_recognition.face_locations(rgb_small_frame)
-                if len(self.face_locations) > 0:
-                    self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
-                    for face_encoding in self.face_encodings:
-                        face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-                        if len(face_distances) > 0:
-                            best_match_index = int(np.argmin(face_distances))
-                            min_dist = face_distances[best_match_index]
-                            matched_name = str(self.known_face_names[best_match_index])
-                            if min_dist <= 0.58 and Student_Name.lower() in matched_name.lower():
-                                text = "Verified Student appeared"
+            try:
+                text = "Verified Student disappeared"
+                if len(self.known_face_encodings) > 0:
+                    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+                    rgb_small_frame = np.ascontiguousarray(small_frame[:, :, ::-1])
+                    self.face_locations = face_recognition.face_locations(rgb_small_frame)
+                    if len(self.face_locations) > 0:
+                        self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
+                        for face_encoding in self.face_encodings:
+                            face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                            if len(face_distances) > 0:
+                                best_match_index = int(np.argmin(face_distances))
+                                min_dist = face_distances[best_match_index]
+                                matched_name = str(self.known_face_names[best_match_index])
+                                if min_dist <= 0.58 and Student_Name.lower() in matched_name.lower():
+                                    text = "Verified Student appeared"
 
-            faceDetectionRecording(frame, text)
+                faceDetectionRecording(frame, text)
+            except Exception:
+                pass
             time.sleep(1)
 
 # Head Movement Detection using Rigid Canonical 3D Model
 def headMovmentDetection(image, face_mesh):
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-    image.flags.writeable = False
-    results = face_mesh.process(image)
-    image.flags.writeable = True
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    if face_mesh is None:
+        return
+    try:
+        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+        image.flags.writeable = False
+        results = face_mesh.process(image)
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    img_h, img_w, _ = image.shape
+        img_h, img_w, _ = image.shape
 
-    if results.multi_face_landmarks:
-        for face_landmarks in results.multi_face_landmarks:
-            face_2d = []
-            # Landmark order matches CANONICAL_FACE_3D: (1, 199, 33, 263, 61, 291)
-            for idx in (1, 199, 33, 263, 61, 291):
-                lm = face_landmarks.landmark[idx]
-                x, y = int(lm.x * img_w), int(lm.y * img_h)
-                face_2d.append([x, y])
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:
+                face_2d = []
+                # Landmark order matches CANONICAL_FACE_3D: (1, 199, 33, 263, 61, 291)
+                for idx in (1, 199, 33, 263, 61, 291):
+                    lm = face_landmarks.landmark[idx]
+                    x, y = int(lm.x * img_w), int(lm.y * img_h)
+                    face_2d.append([x, y])
 
-            face_2d = np.array(face_2d, dtype=np.float64)
-            focal_length = 1.0 * img_w
-            cam_matrix = np.array([[focal_length, 0, img_w / 2.0],
-                                   [0, focal_length, img_h / 2.0],
-                                   [0, 0, 1.0]], dtype=np.float64)
-            dist_matrix = np.zeros((4, 1), dtype=np.float64)
-            success, rot_vec, trans_vec = cv2.solvePnP(CANONICAL_FACE_3D, face_2d, cam_matrix, dist_matrix)
-            if not success:
+                face_2d = np.array(face_2d, dtype=np.float64)
+                focal_length = 1.0 * img_w
+                cam_matrix = np.array([[focal_length, 0, img_w / 2.0],
+                                       [0, focal_length, img_h / 2.0],
+                                       [0, 0, 1.0]], dtype=np.float64)
+                dist_matrix = np.zeros((4, 1), dtype=np.float64)
+                success, rot_vec, trans_vec = cv2.solvePnP(CANONICAL_FACE_3D, face_2d, cam_matrix, dist_matrix)
+                if not success:
+                    break
+                rmat, _ = cv2.Rodrigues(rot_vec)
+                angles, _, _, _, _, _ = cv2.RQDecomp3x3(rmat)
+
+                x_deg = angles[0]
+                y_deg = angles[1]
+
+                textHead = 'Forward'
+                if y_deg < -15:
+                    textHead = "Looking Left"
+                elif y_deg > 15:
+                    textHead = "Looking Right"
+                elif x_deg < -15:
+                    textHead = "Looking Down"
+                elif x_deg > 15:
+                    textHead = "Looking Up"
+
+                cv2.putText(image, textHead, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                Head_record_duration(textHead, image)
                 break
-            rmat, _ = cv2.Rodrigues(rot_vec)
-            angles, _, _, _, _, _ = cv2.RQDecomp3x3(rmat)
-
-            x_deg = angles[0]
-            y_deg = angles[1]
-
-            textHead = 'Forward'
-            if y_deg < -15:
-                textHead = "Looking Left"
-            elif y_deg > 15:
-                textHead = "Looking Right"
-            elif x_deg < -18:
-                textHead = "Looking Down"
-            elif x_deg > 15:
-                textHead = "Looking Up"
-
-            cv2.putText(image, textHead, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            Head_record_duration(textHead, image)
-            break
+    except Exception:
+        pass
 
 # Keyboard Shortcut Detection with Debounce
 def shortcut_handler(event):
@@ -972,22 +1025,33 @@ class Recorder:
 
 # Cheat Detection Worker Loops
 def cheat_Detection1():
-    deleteTrashVideos()
-    global Globalflag
-    mp_face_mesh = mp.solutions.face_mesh
-    face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-    while Globalflag:
-        if cap is None or not cap.isOpened():
-            time.sleep(0.5)
-            continue
-        with camera_lock:
-            success, image = cap.read()
-        if not success or image is None:
-            time.sleep(0.1)
-            continue
-        headMovmentDetection(image, face_mesh)
-        time.sleep(0.08)
-    deleteTrashVideos()
+    try:
+        deleteTrashVideos()
+        global Globalflag
+        if mp is None:
+            return
+        mp_face_mesh = mp.solutions.face_mesh
+        face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        while Globalflag:
+            if cap is None or not cap.isOpened():
+                time.sleep(0.5)
+                continue
+            with camera_lock:
+                if cap is None or not cap.isOpened():
+                    time.sleep(0.2)
+                    continue
+                success, image = cap.read()
+            if not success or image is None:
+                time.sleep(0.1)
+                continue
+            try:
+                headMovmentDetection(image, face_mesh)
+            except Exception:
+                pass
+            time.sleep(0.08)
+        deleteTrashVideos()
+    except Exception as e:
+        print("Error in cheat_Detection1:", e)
 
 def cheat_Detection2():
     try:
@@ -1000,6 +1064,9 @@ def cheat_Detection2():
                 time.sleep(0.5)
                 continue
             with camera_lock:
+                if cap is None or not cap.isOpened():
+                    time.sleep(0.2)
+                    continue
                 success, image = cap.read()
             if not success or image is None:
                 time.sleep(0.1)

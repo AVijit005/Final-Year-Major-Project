@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" title="System Check" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 
 <head>
+    <link rel="icon" href="data:,">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -118,8 +120,8 @@
             contentType: "application/json",
             data: JSON.stringify({ input: checkValue1 + ';' + checkValue2 }), // Use + to concatenate
             success: function(response) {
-                console.log(response);
-                console.log(response['output']);
+                // console.log(response);
+                // console.log(response['output']);
 
                 // Redirect to exam on success
                 window.location.href = "/" + response['output'];
